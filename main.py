@@ -26,13 +26,14 @@ def gui():
 		elif(input == '4'):
 			print g.getVertices()
                 elif(input == '5'):
-			print "Visar connections"
 			n = raw_input("Choose vertice \n")
-			g.getVertex(n)
+			print g.getVertex(n)
                 elif(input == '6'):    
 			print_menu()
 		elif(input == '7'):
 			break;
+		elif(input == '8'):
+			g.topologicalOrdering()
 
 # Prints the menu
 def print_menu():
@@ -44,6 +45,7 @@ def print_menu():
         print "5. Display connections"
 	print "6. Display menu"     
         print "7. Quit program"
+	print "8. TEST"
 
 # Create an empty graph
 def create_graph():
