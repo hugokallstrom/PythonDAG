@@ -6,7 +6,7 @@ class Vertex:
 	self.weight = weight
         self.connectedTo = {}
 
-    def addNeighbor(self,nbr,weight=0):
+    def addNeighbor(self,nbr,weight):
         self.connectedTo[nbr] = weight
 
     def __str__(self):
@@ -42,12 +42,20 @@ class Graph:
     def __contains__(self,n):
         return n in self.vertList
 
-    def addEdge(self,f,t,cost=0):
-        if f not in self.vertList:
-            nv = self.addVertex(f)
-        if t not in self.vertList:
-            nv = self.addVertex(t)
-        self.vertList[f].addNeighbor(self.vertList[t], cost)
+    def addEdge(self,a,b,weight):
+	
+	for x, y in self.vertList:
+		if x == a: 
+			print "Hej"
+		else:
+			print "finns ej"
+	for x, y in self.vertList:
+		if x == b:
+			print "Då"
+		else:
+			print "bajs"
+
+#        self.vertList[a].addNeighbor(self.vertList[b], weight)
 
     def getVertices(self):
         return self.vertList.keys()

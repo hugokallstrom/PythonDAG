@@ -19,11 +19,16 @@ def gui():
                         v = g.add_vertex(weight)
 			print "Vertex identifier: " + v
                 elif(input == '3'):
-			print "Lägger till kant"
+			a = raw_input("Choose first vertice \n")
+			b = raw_input("Choose second vertice \n")
+			w = raw_input("Choose a weight for the edge \n")
+			g.addEdge(a,b,w)
 		elif(input == '4'):
 			print g.getVertices()
                 elif(input == '5'):
 			print "Visar connections"
+			n = raw_input("Choose vertice \n")
+			g.getVertex(n)
                 elif(input == '6'):    
 			print_menu()
 		elif(input == '7'):
@@ -35,7 +40,7 @@ def print_menu():
         print "1. Help" 
         print "2. Add node" 
         print "3. Add edge" 
-	print "4. Display nodes"
+	print "4. Display vertices"
         print "5. Display connections"
 	print "6. Display menu"     
         print "7. Quit program"
