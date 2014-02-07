@@ -8,6 +8,10 @@ def main():
 # Lets the user control the program via the text bases GUI
 def gui():
 	g = Graph.Graph()
+	#For test purpose
+	a = g.add_vertex(2)
+	b = g.add_vertex(4)
+	g.addEdge(a,b,6)
 	print_menu()
 	while True:
                 input = raw_input("Input selection \n")

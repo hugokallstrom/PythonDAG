@@ -4,18 +4,44 @@ class Vertex:
 	def __init__(self,numVertices, weight):
 		self.id = chr(numVertices + 97)
 		self.weight = weight
-		self.connectedTo = {}
+		self.connectedTo = []
 
 	def addNeighbor(self,nbr,weight):
-		self.connectedTo[nbr] = weight
+		newEdge = Edge(self,nbr,weight)
+		self.connectedTo.append(newEdge)
+	
+	def removeNeighbor(self, nbr):
+		for e in self.connectedTo:
+			if e.end == nbr:
+				connectedTo.remove(e) 		
 
+	def isNeighbor(self,nbr):
+		for e in self.connectedTo:
+			if e.end == nbr:
+				return True
+			else:
+				return False
+
+	def connectedWith(self,x):
+		try:
+			if self.connectedTo[x] is not None:
+				return True
+		except KeyError:
+			return False
+		
 	def __str__(self):
-		return str(self.id) + ' connectedTo: ' + str([x.id for x in self.connectedTo])
+		return str(self.id) + ' connectedTo: ' + str([x.end.id for x in self.connectedTo])
+
+class Edge:
+	def __init__(self,a,b, weight):
+		self.weight = weight
+		self.start = a
+		self.end = b
+
 
 class Graph:
 	def __init__(self):
 		self.vertList = {}
-		self.vertWeightList = {}
 		self.numVertices = 0
 
 	def add_vertex(self,weight):
@@ -31,22 +57,46 @@ class Graph:
 			return None
 
 	def addEdge(self,a,b,w):
-		if a and b in self.vertList:
-			self.vertList[a].addNeighbor(self.vertList[b], w)
+		if a and b in self.vertList.keys():
+			self.vertList[a].addNeighbor(self.vertList[b],w)
 
 	def getVertices(self):
 		return self.vertList.keys()
 
+	def removeEdge(self, a, b):
+		if a and b in self.vertList.keys():
+			self.vertList[a].removeNeighbor(self.vertList[b])
+
 	def topologicalOrdering(self):
+		g = self.vertList.copy()
 		sorted = []
 		noIncEdges = []
 		add = True
 		for v in self.vertList:
 			for w in self.vertList:
-				if v in self.vertList[w].connectedTo:
+				if self.vertList[w].isNeighbor(self.vertList[v]):
 					add = False
-					print "hej"
+				 
 			if add:	
-				noIncEdges.append(v)
-		print noIncEdges
-	
+				noIncEdges.append(self.vertList[v])
+		#print str([x.id for x in noIncEdges])		
+		while noIncEdges:
+			sorted.append(noIncEdges.pop())
+			vertex = sorted[-1]
+			for v in g:
+				if vertex.isNeighbor(v):
+					print g.getVertex(vertex)
+					g.removeEdge(vertex, v)
+					print g.getVertex(vertex)
+					
+					
+			
+					
+			
+
+
+
+
+
+	  
+			
