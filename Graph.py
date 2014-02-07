@@ -13,7 +13,7 @@ class Vertex:
 	def removeNeighbor(self, nbr):
 		for e in self.connectedTo:
 			if e.end == nbr:
-				connectedTo.remove(e) 		
+				self.connectedTo.remove(e) 		
 
 	def isNeighbor(self,nbr):
 		for e in self.connectedTo:
@@ -37,7 +37,6 @@ class Edge:
 		self.weight = weight
 		self.start = a
 		self.end = b
-
 
 class Graph:
 	def __init__(self):
@@ -69,7 +68,7 @@ class Graph:
 
 	def topologicalOrdering(self):
 		g = self.vertList.copy()
-		sorted = []
+		sortedList = []
 		noIncEdges = []
 		add = True
 		for v in self.vertList:
@@ -79,24 +78,29 @@ class Graph:
 				 
 			if add:	
 				noIncEdges.append(self.vertList[v])
-		#print str([x.id for x in noIncEdges])		
+		
+                print str([x.id for x in noIncEdges])		
+                # Topological order algorithm
 		while noIncEdges:
-			sorted.append(noIncEdges.pop())
-			vertex = sorted[-1]
-			for v in g:
-				if vertex.isNeighbor(v):
-					print g.getVertex(vertex)
-					g.removeEdge(vertex, v)
-					print g.getVertex(vertex)
-					
-					
-			
-					
-			
+                        noInc = True
+			sortedList.append(noIncEdges.pop())
+			vertex = sortedList[-1]
+                        print "First in sortedlist: " + vertex.id
+			for nextVertex in g:
+				if vertex.isNeighbor(g[nextVertex]):
+                                    vertex.removeNeighbor(g[nextVertex])
+                                    # Check if nextVertex has incoming edges
+                                    for b in g:
+                                        if g[b].isNeighbor(g[nextVertex]):
+                                            noInc = False
+                                            break
+                                        else: 
+                                            print "Found no inc edge for: " + g[nextVertex].id
+                                            noInc = True
 
+                                    if noInc:
+                                            print "Appending: " + g[nextVertex].id + " to sorted list"
+                                            noIncEdges.append(g[nextVertex])
 
+                print str([x.id for x in sortedList])
 
-
-
-	  
-			
