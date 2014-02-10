@@ -9,9 +9,17 @@ def main():
 def gui():
 	g = Graph.Graph()
 	#For test purpose
-	a = g.add_vertex(2)
-	b = g.add_vertex(4)
-	g.addEdge(a,b,6)
+	a = g.add_vertex(4)
+	b = g.add_vertex(5)
+	c = g.add_vertex(3)
+	d = g.add_vertex(2)
+	e = g.add_vertex(7)
+	g.addEdge(a,b,2)
+	g.addEdge(a,c,2)
+	g.addEdge(b,d,1)
+	g.addEdge(c,d,1)
+	g.addEdge(c,e,1)
+	g.addEdge(d,e,3)
 	print_menu()
 	while True:
                 input = raw_input("Input selection \n")
@@ -38,6 +46,10 @@ def gui():
 			break;
 		elif(input == '8'):
 			g.topologicalOrdering()
+		elif(input == '9'):
+			a = raw_input("Choose start vertice\n")
+			b = raw_input("Choose end vertice\n")
+			g.weightOfLongestPath(a,b)
 
 # Prints the menu
 def print_menu():
@@ -50,6 +62,7 @@ def print_menu():
 	print "6. Display menu"     
         print "7. Quit program"
 	print "8. TEST"
+	print "9. Longest Path"
 
 # Create an empty graph
 def create_graph():

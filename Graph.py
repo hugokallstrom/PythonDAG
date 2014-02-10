@@ -1,26 +1,43 @@
 # -*- coding: utf-8 -*-
+import copy
 
 class Vertex:
 	def __init__(self,numVertices, weight):
 		self.id = chr(numVertices + 97)
 		self.weight = weight
-		self.connectedTo = []
+		self.incEdges = []
+		self.outEdges = []
 
-	def addNeighbor(self,nbr,weight):
-		newEdge = Edge(self,nbr,weight)
-		self.connectedTo.append(newEdge)
+	def addNeighbor(self,nbr,dir):
+		if dir > 0:
+			self.incEdges.append(nbr)
+		else:
+			self.outEdges.append(nbr)
+		#gamla
+		#newEdge = Edge(self,nbr,weight)
+		#self.connectedTo.append(newEdge)
 	
-	def removeNeighbor(self, nbr):
-		for e in self.connectedTo:
-			if e.end == nbr:
-				self.connectedTo.remove(e) 		
+	def removeNeighbor(self, nbr, dir):
+		if dir > 0:
+			self.incEdges.remove(nbr)
+		else:
+			self.outEdges.remove(nbr)
+		#gamla
+		#for e in self.connectedTo:
+		#	if e.end == nbr:
+		#		self.connectedTo.remove(e) 		
 
 	def isNeighbor(self,nbr):
-		for e in self.connectedTo:
-			if e.end == nbr:
-				return True
-			else:
-				return False
+		if nbr in self.outEdges:
+			return True
+		else:
+			return False
+
+	def hasIncEdges(self):
+		if self.incEdges:
+			return True
+		else:
+			return False
 
 	def connectedWith(self,x):
 		try:
@@ -30,10 +47,10 @@ class Vertex:
 			return False
 		
 	def __str__(self):
-		return str(self.id) + ' connectedTo: ' + str([x.end.id for x in self.connectedTo])
+		return str(self.id) + ' has incoming edges to ' + str([x.id for x in self.incEdges]) + ' has outgoing edges to ' + str([x.id for x in self.outEdges])
 
 class Edge:
-	def __init__(self,a,b, weight):
+	def __init__(self,a,b,weight):
 		self.weight = weight
 		self.start = a
 		self.end = b
@@ -41,6 +58,7 @@ class Edge:
 class Graph:
 	def __init__(self):
 		self.vertList = {}
+		self.edgeList = []
 		self.numVertices = 0
 
 	def add_vertex(self,weight):
@@ -57,50 +75,85 @@ class Graph:
 
 	def addEdge(self,a,b,w):
 		if a and b in self.vertList.keys():
-			self.vertList[a].addNeighbor(self.vertList[b],w)
+			newEdge = Edge(a,b,w)
+			self.edgeList.append(newEdge)
+			self.vertList[a].addNeighbor(self.vertList[b], 0)
+                        self.vertList[b].addNeighbor(self.vertList[a], 1)
+			#gamla
+			#self.vertList[a].addNeighbor(self.vertList[b],w)
 
 	def getVertices(self):
 		return self.vertList.keys()
 
 	def removeEdge(self, a, b):
 		if a and b in self.vertList.keys():
-			self.vertList[a].removeNeighbor(self.vertList[b])
+			self.vertList[a].removeNeighbor(self.vertList[b],0)
+			self.vertList[b].removeNeighbor(self.vertList[a],1)
+
+	def getEdgeWeight(self, a, b):
+		if a and b in self.vertList.keys():
+			for e in self.edgeList:
+				if e.start == a and e.end == b:
+					return e.weight
 
 	def topologicalOrdering(self):
-		g = self.vertList.copy()
+		g = copy.deepcopy(self.vertList)
 		sortedList = []
 		noIncEdges = []
-		add = True
-		for v in self.vertList:
-			for w in self.vertList:
-				if self.vertList[w].isNeighbor(self.vertList[v]):
-					add = False
-				 
-			if add:	
-				noIncEdges.append(self.vertList[v])
-		
-                print str([x.id for x in noIncEdges])		
-                # Topological order algorithm
+		for vertex in g.keys():
+			if not g[vertex].hasIncEdges():
+				noIncEdges.append(g[vertex])
+				del g[vertex]
 		while noIncEdges:
-                        noInc = True
-			sortedList.append(noIncEdges.pop())
-			vertex = sortedList[-1]
-                        print "First in sortedlist: " + vertex.id
-			for nextVertex in g:
+			vertex = noIncEdges.pop()
+			sortedList.append(self.vertList[vertex.id])
+			#vertex = sortedList[-1]
+		#	print "First in sortedlist: " + vertex.id
+			for nextVertex in g.keys():
+		#		print "Next vertex is: " + g[nextVertex].id
+		#		print "next vertex is neighbor: " + str(vertex.isNeighbor(g[nextVertex]))
 				if vertex.isNeighbor(g[nextVertex]):
-                                    vertex.removeNeighbor(g[nextVertex])
-                                    # Check if nextVertex has incoming edges
-                                    for b in g:
-                                        if g[b].isNeighbor(g[nextVertex]):
-                                            noInc = False
-                                            break
-                                        else: 
-                                            print "Found no inc edge for: " + g[nextVertex].id
-                                            noInc = True
+					#g.removeEdge(vertex, g[nextVertex])
+					vertex.removeNeighbor(g[nextVertex],0)
+					g[nextVertex].removeNeighbor(vertex,1)
+				if not g[nextVertex].hasIncEdges():
+					noIncEdges.append(g[nextVertex])
+					del g[nextVertex]
+		#print str([x.id for x in sortedList])
+		return sortedList
+	
+	def weightOfLongestPath(self,a,b):
+		sortedList = self.topologicalOrdering()
+		weightedList = {}
 
-                                    if noInc:
-                                            print "Appending: " + g[nextVertex].id + " to sorted list"
-                                            noIncEdges.append(g[nextVertex])
+		for v in sortedList:
+			weight = 0
+		#	print v.id, "incEdges: ", str([x.id for x in v.incEdges])
+			for w in v.incEdges:
+		#		print "Vikten är ", weight,"< ", weightedList[w.id]+self.getEdgeWeight(w.id,v.id)
+				if weight < (weightedList[w.id] + self.getEdgeWeight(w.id, v.id)):
+					weight = weightedList[w.id] + self.getEdgeWeight(w.id, v.id)
+			weight += v.weight
+			weightedList[v.id] = weight
+		#for k in weightedList.keys():
+		#	print "Nod:", k, "vikt:", weightedList[k]
+		goal = b
+		path = []
+		path.insert(0, goal)
+		while goal != a:
+			for v in self.vertList[goal].incEdges:
 
-                print str([x.id for x in sortedList])
+				print v.id, " ", self.vertList[goal].id
+				print "NU: ", weightedList[self.vertList[goal].id], " + goal.weight: ", self.vertList[goal].weight, "EDGE: ", self.getEdgeWeight(v.id, goal), " == ", weightedList[v.id] 
+				if (weightedList[self.vertList[goal].id] - (self.vertList[goal].weight + self.getEdgeWeight(v.id, goal))) == weightedList[v.id]:
+					goal = v.id 				
+					path.insert(0,goal)
+					print "bajs"
+		print str(path)	
+
+
+
+
+
+
 
