@@ -95,6 +95,7 @@ class Graph:
 			for e in self.edgeList:
 				if e.start == a and e.end == b:
 					return e.weight
+			return 0
 
 	def topologicalOrdering(self):
 		g = copy.deepcopy(self.vertList)
@@ -108,49 +109,63 @@ class Graph:
 			vertex = noIncEdges.pop()
 			sortedList.append(self.vertList[vertex.id])
 			#vertex = sortedList[-1]
-		#	print "First in sortedlist: " + vertex.id
+			#print "First in sortedlist: " + vertex.id
 			for nextVertex in g.keys():
-		#		print "Next vertex is: " + g[nextVertex].id
-		#		print "next vertex is neighbor: " + str(vertex.isNeighbor(g[nextVertex]))
+				#print "Next vertex is: " + g[nextVertex].id
+				#print "next vertex is neighbor: " + str(vertex.isNeighbor(g[nextVertex]))
 				if vertex.isNeighbor(g[nextVertex]):
 					#g.removeEdge(vertex, g[nextVertex])
 					vertex.removeNeighbor(g[nextVertex],0)
 					g[nextVertex].removeNeighbor(vertex,1)
-				if not g[nextVertex].hasIncEdges():
-					noIncEdges.append(g[nextVertex])
-					del g[nextVertex]
+					if not g[nextVertex].hasIncEdges():
+						noIncEdges.append(g[nextVertex])
+						del g[nextVertex]
 		#print str([x.id for x in sortedList])
 		return sortedList
 	
 	def weightOfLongestPath(self,a,b):
 		sortedList = self.topologicalOrdering()
 		weightedList = {}
-
+		print str([x.id for x in sortedList])
 		for v in sortedList:
-			weight = 0
-		#	print v.id, "incEdges: ", str([x.id for x in v.incEdges])
+			if v.id == a:
+				start = sortedList.index(v)
+			if v.id == b:
+				stop = sortedList.index(v)+1
+		print "Looking at: ", ([x.id for x in sortedList[start:stop]])		
+		if start > stop-1:
+			return 0
+		for v in sortedList[start:stop]:
 			for w in v.incEdges:
-		#		print "Vikten är ", weight,"< ", weightedList[w.id]+self.getEdgeWeight(w.id,v.id)
-				if weight < (weightedList[w.id] + self.getEdgeWeight(w.id, v.id)):
-					weight = weightedList[w.id] + self.getEdgeWeight(w.id, v.id)
+				print w.id, " " , sortedList.index(w), " ", stop
+				if sortedList.index(w) > stop:
+					stop = sortedList.index(w)
+		print "Now looking at: ", ([x.id for x in sortedList[start:stop]])
+		for v in sortedList[start:stop]:
+			weight = 0
+			for w in v.incEdges:
+				if w in sortedList[start:stop]:
+					if weight < (weightedList[w.id] + self.getEdgeWeight(w.id, v.id)):
+						weight = weightedList[w.id] + self.getEdgeWeight(w.id, v.id)
+						print "W = ", weight
 			weight += v.weight
+			print "W = ", weight
 			weightedList[v.id] = weight
-		#for k in weightedList.keys():
-		#	print "Nod:", k, "vikt:", weightedList[k]
+		for k in weightedList.keys():
+			print  "(", k, ",", weightedList[k], ")"
 		goal = b
 		path = []
 		path.insert(0, goal)
 		while goal != a:
 			for v in self.vertList[goal].incEdges:
-
-				print v.id, " ", self.vertList[goal].id
-				print "NU: ", weightedList[self.vertList[goal].id], " + goal.weight: ", self.vertList[goal].weight, "EDGE: ", self.getEdgeWeight(v.id, goal), " == ", weightedList[v.id] 
-				if (weightedList[self.vertList[goal].id] - (self.vertList[goal].weight + self.getEdgeWeight(v.id, goal))) == weightedList[v.id]:
-					goal = v.id 				
-					path.insert(0,goal)
-					print "bajs"
-		print str(path)	
-
+				#if v in sortedList[start:stop]:
+					print "INC TO: ", v.id, "FROM: ", self.vertList[goal].id
+					print "IF: ", weightedList[self.vertList[goal].id]-(self.vertList[goal].weight+self.getEdgeWeight(v.id, goal)), " == ", weightedList[v.id] 
+					if (weightedList[self.vertList[goal].id] - (self.vertList[goal].weight + self.getEdgeWeight(v.id, goal))) == weightedList[v.id]:
+						goal = v.id 				
+						path.insert(0,goal)
+						print "insert ", goal
+		print str(path), " with total weight ", weightedList[path[-1]]
 
 
 

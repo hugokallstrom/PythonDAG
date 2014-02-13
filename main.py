@@ -9,17 +9,35 @@ def main():
 def gui():
 	g = Graph.Graph()
 	#For test purpose
-	a = g.add_vertex(4)
+#	a = g.add_vertex(4)
+#	b = g.add_vertex(5)
+#	c = g.add_vertex(3)
+#	d = g.add_vertex(2)
+#	e = g.add_vertex(7)
+#	g.addEdge(a,b,2)
+#	g.addEdge(a,c,2)
+#	g.addEdge(b,d,1)
+#	g.addEdge(c,d,1)
+#	g.addEdge(c,e,1)
+#	g.addEdge(d,e,3)
+	a = g.add_vertex(7)
 	b = g.add_vertex(5)
 	c = g.add_vertex(3)
-	d = g.add_vertex(2)
-	e = g.add_vertex(7)
-	g.addEdge(a,b,2)
-	g.addEdge(a,c,2)
+	d = g.add_vertex(11)
+	e = g.add_vertex(8)
+	f = g.add_vertex(2)
+	h = g.add_vertex(9)
+	i = g.add_vertex(10)
+	g.addEdge(a,d,1)
+	g.addEdge(a,e,1)
 	g.addEdge(b,d,1)
-	g.addEdge(c,d,1)
 	g.addEdge(c,e,1)
-	g.addEdge(d,e,3)
+	g.addEdge(c,i,1)
+	g.addEdge(d,f,1)
+	g.addEdge(d,h,1)
+	g.addEdge(d,i,1)
+	g.addEdge(e,h,1)
+	g.addEdge(i,h,5)
 	print_menu()
 	while True:
                 input = raw_input("Input selection \n")
@@ -61,7 +79,7 @@ def print_menu():
         print "5. Display connections"
 	print "6. Display menu"     
         print "7. Quit program"
-	print "8. TEST"
+	print "8. Topological Ordering"
 	print "9. Longest Path"
 
 # Create an empty graph
