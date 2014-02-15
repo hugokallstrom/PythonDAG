@@ -13,19 +13,12 @@ class Vertex:
 			self.incEdges.append(nbr)
 		else:
 			self.outEdges.append(nbr)
-		#gamla
-		#newEdge = Edge(self,nbr,weight)
-		#self.connectedTo.append(newEdge)
 	
 	def removeNeighbor(self, nbr, dir):
 		if dir > 0:
 			self.incEdges.remove(nbr)
 		else:
 			self.outEdges.remove(nbr)
-		#gamla
-		#for e in self.connectedTo:
-		#	if e.end == nbr:
-		#		self.connectedTo.remove(e) 		
 
 	def isNeighbor(self,nbr):
 		if nbr in self.outEdges:
@@ -35,6 +28,12 @@ class Vertex:
 
 	def hasIncEdges(self):
 		if self.incEdges:
+			return True
+		else:
+			return False
+
+	def hasOutEdges(self):
+		if self.outEdges:
 			return True
 		else:
 			return False
@@ -79,8 +78,6 @@ class Graph:
 			self.edgeList.append(newEdge)
 			self.vertList[a].addNeighbor(self.vertList[b], 0)
                         self.vertList[b].addNeighbor(self.vertList[a], 1)
-			#gamla
-			#self.vertList[a].addNeighbor(self.vertList[b],w)
 
 	def getVertices(self):
 		return self.vertList.keys()
@@ -108,67 +105,71 @@ class Graph:
 		while noIncEdges:
 			vertex = noIncEdges.pop()
 			sortedList.append(self.vertList[vertex.id])
-			#vertex = sortedList[-1]
-			#print "First in sortedlist: " + vertex.id
 			for nextVertex in g.keys():
-				#print "Next vertex is: " + g[nextVertex].id
-				#print "next vertex is neighbor: " + str(vertex.isNeighbor(g[nextVertex]))
 				if vertex.isNeighbor(g[nextVertex]):
-					#g.removeEdge(vertex, g[nextVertex])
 					vertex.removeNeighbor(g[nextVertex],0)
 					g[nextVertex].removeNeighbor(vertex,1)
 					if not g[nextVertex].hasIncEdges():
 						noIncEdges.append(g[nextVertex])
 						del g[nextVertex]
-		#print str([x.id for x in sortedList])
 		return sortedList
 	
 	def weightOfLongestPath(self,a,b):
 		sortedList = self.topologicalOrdering()
 		weightedList = {}
-		print str([x.id for x in sortedList])
+		pathList = []
 		for v in sortedList:
 			if v.id == a:
-				start = sortedList.index(v)
+				pathList.append(v)
+		notFull = True
+		while notFull:
+			added = False
+			for v in pathList:
+				for w in v.outEdges:
+					if w not in pathList:
+						pathList.append(w)
+						added = True
+			if not added:
+				notFull = False
+		ok = False
+		for v in pathList:
 			if v.id == b:
-				stop = sortedList.index(v)+1
-		print "Looking at: ", ([x.id for x in sortedList[start:stop]])		
-		if start > stop-1:
-			return 0
-		for v in sortedList[start:stop]:
-			for w in v.incEdges:
-				print w.id, " " , sortedList.index(w), " ", stop
-				if sortedList.index(w) > stop:
-					stop = sortedList.index(w)
-		print "Now looking at: ", ([x.id for x in sortedList[start:stop]])
-		for v in sortedList[start:stop]:
+				ok = True
+		if not ok:	
+			print a, " can't reach ", b 
+		else:
+			for v in pathList:
+				weight = 0
+				for w in v.incEdges:
+					if w in pathList:
+						if weight < (weightedList[w.id] + self.getEdgeWeight(w.id,v.id)):
+							weight = weightedList[w.id] + self.getEdgeWeight(w.id, v.id)
+				weight += v.weight
+				weightedList[v.id] = weight
+			#goal = b
+			#path = []
+			#path.insert(0, goal)
+			#while goal != a:
+			#	for v in self.vertList[goal].incEdges:
+			#		if v in pathList:
+			#			if (weightedList[self.vertList[goal].id] - (self.vertList[goal].weight + self.getEdgeWeight(v.id, goal))) == weightedList[v.id]:
+			#				goal = v.id
+			#				path.insert(0, goal)
+			goal = self.vertList[b]
+			path = []
+			path.insert(0, goal)
+			while goal.id != a:
+				for v in goal.incEdges:
+					if v in pathList:
+						if weightedList[goal.id] - (goal.weight + self.getEdgeWeight(v.id, goal.id)) == weightedList[v.id]:
+							goal = v
+							path.insert(0, goal)
 			weight = 0
-			for w in v.incEdges:
-				if w in sortedList[start:stop]:
-					if weight < (weightedList[w.id] + self.getEdgeWeight(w.id, v.id)):
-						weight = weightedList[w.id] + self.getEdgeWeight(w.id, v.id)
-						print "W = ", weight
-			weight += v.weight
-			print "W = ", weight
-			weightedList[v.id] = weight
-		for k in weightedList.keys():
-			print  "(", k, ",", weightedList[k], ")"
-		goal = b
-		path = []
-		path.insert(0, goal)
-		while goal != a:
-			for v in self.vertList[goal].incEdges:
-				#if v in sortedList[start:stop]:
-					print "INC TO: ", v.id, "FROM: ", self.vertList[goal].id
-					print "IF: ", weightedList[self.vertList[goal].id]-(self.vertList[goal].weight+self.getEdgeWeight(v.id, goal)), " == ", weightedList[v.id] 
-					if (weightedList[self.vertList[goal].id] - (self.vertList[goal].weight + self.getEdgeWeight(v.id, goal))) == weightedList[v.id]:
-						goal = v.id 				
-						path.insert(0,goal)
-						print "insert ", goal
-		print str(path), " with total weight ", weightedList[path[-1]]
-
-
-
-
+			for v in path:
+				if v != path[-1]:
+					weight += v.weight + self.getEdgeWeight(v.id, path[path.index(v)+1].id)
+				else:
+					weight += v.weight
+			print str([x.id for x in path]), " with weight ", weight
 
 
